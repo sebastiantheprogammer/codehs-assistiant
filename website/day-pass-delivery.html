@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeHS Assistant - Day Pass Delivery</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .delivery-content {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 8rem auto 4rem; /* Lower it down, center */
+        }
+        .delivery-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .delivery-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .download-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: transform 0.3s;
+            margin-top: 2rem;
+        }
+        .download-button:hover {
+            transform: translateY(-2px);
+        }
+        .instructions-list {
+            text-align: left;
+            margin: 2rem auto;
+            max-width: 600px;
+            list-style: none;
+            padding-left: 0;
+        }
+        .instructions-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .instructions-list li:before {
+            content: '✓'; /* Checkmark icon */
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="topography-bg"></div>
+    
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="https://uploads.codehs.com/7cf4e0882dfdd89d1d9b526cbaf97263" alt="CodeHS Assistant Logo" style="height: 50px; margin-right: 10px;">
+                <span>CodeHS Assistant</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="delivery-content glass-card">
+            <h1>Your Day Pass Product is Ready!</h1>
+            <p>Thank you for purchasing the <strong>CodeHS Assistant Day Pass</strong>. Your access to the ultimate assignment hack begins now and will be active for 24 hours from the time of purchase.</p>
+            
+            <a href="#" class="download-button">Download Extension (Placeholder Link)</a>
+
+            <h2>Important Information</h2>
+            <p style="margin-bottom: 1.5rem;">For detailed instructions on how to install and use the CodeHS Assistant extension, please visit our <a href="how-to-use.html" class="cta-button" style="margin-left: 0.5rem; padding: 0.75rem 1.5rem; font-size: 1rem;">How to Use page</a>.</p>
+
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 2rem;"><strong>Important:</strong> This Day Pass provides 24 hours of access to the extension's full features. After 24 hours, the extension will automatically disable. For continued access, please consider purchasing another pass.</p>
+
+            <a href="index.html" class="cta-button">Back to Home</a>
+            <a href="refund.html" class="cta-button" style="margin-left: 1rem;">Refund Policy</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="glass-card">
+            <p>&copy; 2024 CodeHS Assistant. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 
