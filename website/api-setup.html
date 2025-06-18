@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeHS Assistant - API Setup</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .setup-content {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 8rem auto 4rem;
+        }
+        .setup-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .setup-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .activation-code {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+        .instructions-list {
+            text-align: left;
+            margin: 2rem auto;
+            max-width: 600px;
+            list-style: none;
+            padding-left: 0;
+        }
+        .instructions-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .instructions-list li:before {
+            content: '✓';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        .code-input {
+            padding: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            background: var(--glass-bg);
+            color: var(--primary-color);
+            font-family: monospace;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="topography-bg"></div>
+    
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="https://uploads.codehs.com/7cf4e0882dfdd89d1d9b526cbaf97263" alt="CodeHS Assistant Logo" style="height: 50px; margin-right: 10px;">
+                <span>CodeHS Assistant</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="how-to-use.html">How to Use</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="setup-content glass-card">
+            <h1>API Setup & Activation</h1>
+            
+            <div id="activation-section">
+                <h2>Your Activation Code</h2>
+                <div class="activation-code" id="activation-code-display">
+                    Loading...
+                </div>
+                <p>This code will be used to activate your extension and start your subscription timer.</p>
+            </div>
+
+            <h2 style="margin-top: 3rem;">How to Set Up Your API Key</h2>
+            <ol class="instructions-list">
+                <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a> and sign in to your account</li>
+                <li>Click "Create new secret key"</li>
+                <li>Give your key a name (e.g., "CodeHS Assistant")</li>
+                <li>Copy the generated API key</li>
+                <li>Open the CodeHS Assistant extension</li>
+                <li>Paste your API key into the "API Key" field</li>
+                <li>Enter your activation code in the "Activation Code" field</li>
+                <li>Click "Activate" to start your subscription</li>
+            </ol>
+
+            <div style="margin-top: 3rem;">
+                <h2>Important Notes</h2>
+                <p>Your subscription timer will start as soon as you activate the extension with your code.</p>
+                <p>The timer cannot be paused or reset, so make sure you're ready to use the extension before activating.</p>
+                <p>If you need to transfer your subscription to a different browser or device, contact our support team.</p>
+            </div>
+
+            <a href="index.html" class="cta-button" style="margin-top: 3rem;">Back to Home</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="glass-card">
+            <p>&copy; 2024 CodeHS Assistant. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Fetch activation code from backend
+        async function fetchActivationCode() {
+            try {
+                const response = await fetch('/api/activation-code');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('activation-code-display').textContent = data.code;
+                } else {
+                    throw new Error('Failed to fetch activation code');
+                }
+            } catch (error) {
+                document.getElementById('activation-code-display').textContent = 'Error loading code. Please refresh the page.';
+                console.error('Error:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchActivationCode);
+    </script>
+</body>
+</html> 

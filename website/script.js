@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
                 target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                    behavior: 'smooth'
                 });
             }
         });
@@ -22,10 +21,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = contactForm.querySelector('input[type="email"]').value;
             const message = contactForm.querySelector('textarea').value;
             
-            // Here you would typically send this to your backend
-            // For now, we'll just show a success message
-            alert('Thank you for your message! We will get back to you soon.');
-            contactForm.reset();
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, message })
+                });
+
+                if (response.ok) {
+                    alert('Thank you for your message! We will get back to you soon.');
+                    contactForm.reset();
+                } else {
+                    throw new Error('Failed to send message');
+                }
+            } catch (error) {
+                alert('Sorry, there was an error sending your message. Please try again later.');
+                console.error('Contact form error:', error);
+            }
         });
     }
 
@@ -54,10 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Header scroll effect
     const header = document.querySelector('header');
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) { // Adjust scroll threshold as needed
+        if (window.scrollY > 50) {
             header.classList.add('scrolled-header');
         } else {
             header.classList.remove('scrolled-header');
         }
     });
+
+    // Initialize header state
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled-header');
+    }
 }); 

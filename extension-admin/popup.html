@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CodeHS Assistant Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #ffffff;
+      --secondary-color: #000000;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    body {
+      width: 350px;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .home-button {
+      padding: 8px 12px;
+      background: var(--secondary-color);
+      color: var(--primary-color);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: inherit;
+      transition: transform 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+    }
+
+    h2 {
+      margin: 0 0 15px 0;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    select, input {
+      padding: 10px;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      background: var(--glass-bg);
+      color: var(--secondary-color);
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+    }
+
+    button {
+      padding: 12px;
+      background: var(--secondary-color);
+      color: var(--primary-color);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: inherit;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .admin-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .admin-section h3 {
+      margin: 0 0 15px 0;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .admin-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .generated-code-display {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="icons/icon48.png" alt="Logo" class="logo">
+      <h1 class="title">CodeHS Assistant Admin</h1>
+      <button class="home-button">Home</button>
+    </div>
+
+    <select id="aiModel">
+      <option value="chatgpt">ChatGPT</option>
+    </select>
+    <input type="text" id="apiKey" placeholder="Enter ChatGPT API Key">
+    <button id="extractBtn">Extract Assignment</button>
+    <div class="button-group">
+      <button id="solveBtn">Solve</button>
+      <button id="pasteBtn">Auto-Paste</button>
+    </div>
+    <div id="status" class="status">Ready</div>
+
+    <div class="admin-section">
+      <h3>Admin Controls</h3>
+      <div class="admin-buttons">
+        <button id="generateCodeBtn">Generate New Activation Code</button>
+        <button id="viewCodesBtn">View All Active Codes</button>
+      </div>
+      <div id="generatedCode" class="generated-code-display" style="display: none;"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>API Key Management</h3>
+      <select id="apiKeyProvider">
+        <option value="chatgpt">ChatGPT</option>
+        <option value="gemini">Gemini</option>
+        <option value="deepseek">Deepseek</option>
+      </select>
+      <input type="text" id="apiKeyInput" placeholder="Enter API Key">
+      <select id="apiKeyType">
+        <option value="admin">Admin</option>
+        <option value="user">User</option>
+      </select>
+      <button id="saveApiKeyBtn">Save API Key</button>
+      <div id="apiKeysList"></div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html> 

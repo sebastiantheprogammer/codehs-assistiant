@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeHS Assistant - Day Pass Delivery</title>
+    <title>CodeHS Assistant - Yearly Pass Delivery</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
             text-align: center;
             padding: 4rem 2rem;
             max-width: 800px;
-            margin: 8rem auto 4rem; /* Lower it down, center */
+            margin: 8rem auto 4rem;
         }
         .delivery-content h1 {
             font-size: 2.5rem;
@@ -51,7 +51,7 @@
             position: relative;
         }
         .instructions-list li:before {
-            content: '✓'; /* Checkmark icon */
+            content: '✓';
             color: var(--primary-color);
             position: absolute;
             left: 0;
@@ -78,8 +78,8 @@
 
     <main>
         <section class="delivery-content glass-card">
-            <h1>Your Day Pass Product is Ready!</h1>
-            <p>Thank you for purchasing the <strong>CodeHS Assistant Day Pass</strong>. Your access to the ultimate assignment hack begins now and will be active for 24 hours from the time of purchase.</p>
+            <h1>Your Yearly Pass Product is Ready!</h1>
+            <p>Thank you for purchasing the <strong>CodeHS Assistant Yearly Pass</strong>. Your access to the ultimate assignment hack begins now and will be active for 365 days from the time of purchase.</p>
             
             <div style="margin: 3rem 0;">
                 <a href="/api/download-extension" class="download-button">Download Extension</a>
@@ -90,14 +90,14 @@
                 <div class="activation-code" id="activation-code-display" style="margin: 1rem 0; font-family: monospace; font-size: 1.2rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
                     Loading...
                 </div>
-                <p>Save this code! You'll need it to activate your extension and start your 24-hour subscription.</p>
+                <p>Save this code! You'll need it to activate your extension and start your 365-day subscription.</p>
                 <a href="api-setup.html" class="cta-button" style="margin-top: 1rem;">View Setup Instructions</a>
             </div>
 
             <h2 style="margin-top: 3rem;">Important Information</h2>
             <p style="margin-bottom: 1.5rem;">For detailed instructions on how to install and use the CodeHS Assistant extension, please visit our <a href="how-to-use.html" class="cta-button" style="margin-left: 0.5rem; padding: 0.75rem 1.5rem; font-size: 1rem;">How to Use page</a>.</p>
 
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 2rem;"><strong>Important:</strong> This Day Pass provides 24 hours of access to the extension's full features. After 24 hours, the extension will automatically disable. For continued access, please consider purchasing another pass.</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 2rem;"><strong>Important:</strong> This Yearly Pass provides 365 days of access to the extension's full features. After the year is complete, the extension will automatically disable. For continued access, please consider purchasing another pass.</p>
 
             <a href="index.html" class="cta-button">Back to Home</a>
             <a href="refund.html" class="cta-button" style="margin-left: 1rem;">Refund Policy</a>
@@ -109,5 +109,7 @@
             <p>&copy; 2024 CodeHS Assistant. All rights reserved.</p>
         </div>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 </html> 

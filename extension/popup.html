@@ -2,52 +2,191 @@
 <html>
 <head>
   <title>CodeHS Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      width: 300px;
-      padding: 10px;
-      font-family: Arial, sans-serif;
+    :root {
+      --primary-color: #ffffff;
+      --secondary-color: #000000;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
+
+    body {
+      width: 350px;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background: var(--secondary-color);
+      color: var(--primary-color);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
     .container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--glass-shadow);
+      width: 100%;
+      max-width: 350px;
+      margin: 0 auto;
     }
-    button {
-      padding: 8px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+
+    h2 {
+      margin: 0 0 15px 0;
+      font-size: 1.5rem;
+      text-align: center;
+      width: 100%;
     }
-    button:hover {
-      background-color: #45a049;
-    }
+
     select, input {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 10px;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      background: var(--glass-bg);
+      color: var(--primary-color);
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
     }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    button {
+      padding: 12px;
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: inherit;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
     .status {
       margin-top: 10px;
-      padding: 8px;
-      border-radius: 4px;
-      background-color: #f0f0f0;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .timer {
+      text-align: center;
+      font-size: 1.2rem;
+      margin: 10px 0;
+      padding: 10px;
+      background: var(--glass-bg);
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      font-family: monospace;
+    }
+
+    .setup-section {
+      display: none;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .setup-section.active {
+      display: block;
+    }
+
+    .setup-section h3 {
+      margin: 0 0 15px 0;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .setup-section input {
+      margin-bottom: 12px;
+    }
+
+    .setup-section button {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    .main-section {
+      display: none;
+    }
+
+    .main-section.active {
+      display: block;
+    }
+
+    @media screen and (max-width: 400px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      .timer {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>CodeHS Assistant</h2>
-    <select id="aiModel">
-      <option value="chatgpt">ChatGPT</option>
-    </select>
-    <input type="text" id="apiKey" placeholder="Enter ChatGPT API Key">
-    <button id="extractBtn">Extract Assignment</button>
-    <button id="solveBtn">Solve Assignment</button>
-    <button id="pasteBtn">Auto-Paste Solution</button>
-    <div id="status" class="status">Ready</div>
+    
+    <div id="setup-section" class="setup-section">
+      <h3>Initial Setup Required</h3>
+      <input type="text" id="apiKey" placeholder="Enter ChatGPT API Key">
+      <input type="text" id="activationCode" placeholder="Enter Your Activation Code">
+      <button id="activateBtn">Activate Extension</button>
+      <div id="setup-status" class="status">Enter your API key and activation code to begin</div>
+    </div>
+
+    <div id="main-section" class="main-section">
+      <div id="timer" class="timer">Loading...</div>
+      <select id="aiModel">
+        <option value="chatgpt">ChatGPT</option>
+        <option value="gemini">Gemini</option>
+        <option value="deepseek">Deepseek</option>
+      </select>
+      <button id="extractBtn">Extract Assignment</button>
+      <div class="button-group">
+        <button id="solveBtn">Solve</button>
+        <button id="pasteBtn">Auto-Paste</button>
+      </div>
+      <div id="status" class="status">Ready</div>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
