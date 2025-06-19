@@ -8,6 +8,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+    .footer-icon {
+      color: #fff !important;
+      font-size: 2.1em;
+      margin-left: 10px;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s, color 0.2s;
+      text-decoration: none !important;
+      box-shadow: none !important;
+      border-bottom: none !important;
+    }
+    .footer-icon:hover {
+      transform: scale(1.25);
+      color: #e0e0e0 !important;
+    }
+    </style>
 </head>
 <body>
     <div class="topography-bg"></div>
@@ -78,7 +97,9 @@
                             <li>Full feature access</li>
                             <li>Priority support</li>
                         </ul>
-                        <a href="#" class="purchase-button">Purchase Now</a>
+                        <a href="https://buy.stripe.com/4gM7sL0cF3bib5h9YaefC03" class="purchase-button">Purchase Now</a>
+                        <br>
+                        <a href="week-pass-delivery.html" class="cta-button" style="margin-top: 1rem;">View Delivery Page</a>
                     </div>
                     <div class="pricing-card">
                         <h3>1 Month Pass</h3>
@@ -88,7 +109,7 @@
                             <li>Full feature access</li>
                             <li>Priority support</li>
                         </ul>
-                        <a href="#" class="purchase-button">Purchase Now</a>
+                        <a href="https://buy.stripe.com/fZuaEXcZr7ry4GT3zMefC02" class="purchase-button">Purchase Now</a>
                     </div>
                     <div class="pricing-card">
                         <h3>1 Year Pass</h3>
@@ -98,7 +119,7 @@
                             <li>Full feature access</li>
                             <li>Priority support</li>
                         </ul>
-                        <a href="#" class="purchase-button">Purchase Now</a>
+                        <a href="https://buy.stripe.com/aFa3cvaRj5jq0qDc6iefC04" class="purchase-button">Purchase Now</a>
                     </div>
                 </div>
             </div>
@@ -117,8 +138,17 @@
     </main>
 
     <footer>
-        <div class="glass-card">
-            <p>&copy; 2024 CodeHS Assistant. All rights reserved.</p>
+        <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: none;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 18px;">
+                <span style="color: #fff; font-weight: 700; font-size: 1.5em; letter-spacing: 0.5px;">Made By Sebastian</span>
+                <a href="https://github.com/sebastiantheprogammer" target="_blank" class="footer-icon">
+                    <i class='bx bxl-github'></i>
+                </a>
+                <a href="https://www.instagram.com/s3b4t1an_/" target="_blank" class="footer-icon">
+                    <i class='bx bxl-instagram'></i>
+                </a>
+            </div>
+            <span style="color: #fff; opacity: 0.7; font-size: 1em; font-weight: 400; margin-top: 4px;">&copy; 2024 CodeHS Assistant. All rights reserved.</span>
         </div>
     </footer>
 

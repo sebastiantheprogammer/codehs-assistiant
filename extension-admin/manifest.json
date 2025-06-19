@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "https://codehs.com/*",
-    "https://api.openai.com/*"
+    "https://api.openai.com/*",
+    "http://localhost:3000/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -35,9 +36,6 @@
     "service_worker": "background.js"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com/"
-  },
-  "dependencies": {
-    "uuid": "^8.3.2"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com/ http://localhost:3000/"
   }
 } 

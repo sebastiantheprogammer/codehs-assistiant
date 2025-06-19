@@ -52,7 +52,7 @@
       padding: 10px;
       border: 1px solid var(--glass-border);
       border-radius: 8px;
-      background: var(--glass-bg);
+      background: rgba(30, 30, 30, 0.7);
       color: var(--primary-color);
       font-family: inherit;
       width: 100%;
@@ -61,7 +61,8 @@
 
     select:focus, input:focus {
       outline: none;
-      border-color: var(--primary-color);
+      border-color: #fff;
+      background: rgba(30, 30, 30, 0.85);
     }
 
     button {
@@ -166,11 +167,19 @@
     <h2>CodeHS Assistant</h2>
     
     <div id="setup-section" class="setup-section">
-      <h3>Initial Setup Required</h3>
-      <input type="text" id="apiKey" placeholder="Enter ChatGPT API Key">
+      <h3>Activation Required</h3>
       <input type="text" id="activationCode" placeholder="Enter Your Activation Code">
       <button id="activateBtn">Activate Extension</button>
-      <div id="setup-status" class="status">Enter your API key and activation code to begin</div>
+      <div id="setup-status" class="status">Enter your activation code to begin</div>
+    </div>
+
+    <div id="api-setup-section" class="setup-section" style="display:none;">
+      <h3>Enter Your API Keys</h3>
+      <input type="text" id="apiKey_chatgpt" placeholder="Enter ChatGPT API Key">
+      <input type="text" id="apiKey_gemini" placeholder="Enter Gemini API Key">
+      <input type="text" id="apiKey_deepseek" placeholder="Enter Deepseek API Key">
+      <button id="saveApiKeysBtn">Save API Keys</button>
+      <div id="api-setup-status" class="status">Enter at least one API key to continue</div>
     </div>
 
     <div id="main-section" class="main-section">

@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pasteBtn = document.getElementById('pasteBtn');
     const status = document.getElementById('status');
     const aiModelSelect = document.getElementById('aiModel');
+    const apiSetupSection = document.getElementById('api-setup-section');
 
     let currentAssignment = null;
     let currentSolution = null;
@@ -34,21 +35,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Save API key when changed
-    apiKeyInput.addEventListener('change', function() {
-        chrome.storage.local.set({ apiKey: apiKeyInput.value });
+    // Load saved per-model API keys and set up listeners
+    const apiKeyInputs = {
+        chatgpt: document.getElementById('apiKey_chatgpt'),
+        gemini: document.getElementById('apiKey_gemini'),
+        deepseek: document.getElementById('apiKey_deepseek')
+    };
+    // Load saved keys
+    chrome.storage.local.get(['apiKey_chatgpt', 'apiKey_gemini', 'apiKey_deepseek'], function(result) {
+        if (result.apiKey_chatgpt) apiKeyInputs.chatgpt.value = result.apiKey_chatgpt;
+        if (result.apiKey_gemini) apiKeyInputs.gemini.value = result.apiKey_gemini;
+        if (result.apiKey_deepseek) apiKeyInputs.deepseek.value = result.apiKey_deepseek;
+    });
+    // Save on change
+    Object.entries(apiKeyInputs).forEach(([model, input]) => {
+        input.addEventListener('change', function() {
+            const key = `apiKey_${model}`;
+            const value = input.value;
+            chrome.storage.local.set({ [key]: value });
+        });
     });
 
     // Activation button click handler
     activateBtn.addEventListener('click', async () => {
-        const apiKey = apiKeyInput.value.trim();
         const activationCode = activationCodeInput.value.trim();
-
-        if (!apiKey || !activationCode) {
-            setupStatus.textContent = 'Please enter both API key and activation code';
+        if (!activationCode) {
+            setupStatus.textContent = 'Please enter your activation code';
             return;
         }
-
         try {
             const response = await fetch('http://localhost:3000/api/activate', {
                 method: 'POST',
@@ -57,18 +71,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({ activationCode })
             });
-
             if (response.ok) {
                 const data = await response.json();
                 await chrome.storage.local.set({
-                    apiKey,
                     activationCode,
                     expiryDate: data.expiryDate
                 });
-                showMainSection();
-                startTimer();
+                showApiSetupSection();
             } else {
-                setupStatus.textContent = 'Invalid activation code or API key';
+                setupStatus.textContent = 'Invalid activation code';
             }
         } catch (error) {
             setupStatus.textContent = 'Error activating extension. Please try again.';
@@ -122,9 +133,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         mainSection.classList.remove('active');
     }
 
+    function showApiSetupSection() {
+        setupSection.classList.remove('active');
+        apiSetupSection.style.display = 'block';
+        mainSection.classList.remove('active');
+    }
+
     function showMainSection() {
         setupSection.classList.remove('active');
+        apiSetupSection.style.display = 'none';
         mainSection.classList.add('active');
+        startTimer();
     }
 
     // Existing functionality
@@ -168,18 +187,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         status.textContent = 'Solving assignment...';
-        
         try {
             const model = aiModelSelect.value;
-            const apiKey = apiKeyInput.value;
-            
+            const apiKey = apiKeyInputs[model].value;
             if (!apiKey) {
-                status.textContent = 'Please enter your API key in the setup section!';
+                status.textContent = `Please enter your API key for ${model.charAt(0).toUpperCase() + model.slice(1)}!`;
                 return;
             }
-
             const solution = await solveWithAI(currentAssignment, model, apiKey);
-            
             currentSolution = solution;
             status.textContent = 'Solution generated successfully!';
         } catch (error) {
@@ -210,6 +225,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Pasting error:', error);
         }
     });
+
+    // Save API keys and proceed to main section if at least one is entered
+    document.getElementById('saveApiKeysBtn').addEventListener('click', function() {
+        const chatgptKey = document.getElementById('apiKey_chatgpt').value.trim();
+        const geminiKey = document.getElementById('apiKey_gemini').value.trim();
+        const deepseekKey = document.getElementById('apiKey_deepseek').value.trim();
+        if (!chatgptKey && !geminiKey && !deepseekKey) {
+            document.getElementById('api-setup-status').textContent = 'Enter at least one API key to continue';
+            return;
+        }
+        chrome.storage.local.set({
+            apiKey_chatgpt: chatgptKey,
+            apiKey_gemini: geminiKey,
+            apiKey_deepseek: deepseekKey
+        }, function() {
+            showMainSection();
+        });
+    });
+
+    // On load, show correct section
+    (async function() {
+        const { activationCode, expiryDate } = await chrome.storage.local.get(['activationCode', 'expiryDate']);
+        if (!activationCode || !expiryDate || new Date(expiryDate) < new Date()) {
+            showSetupSection();
+        } else {
+            // Check if at least one API key is set
+            const { apiKey_chatgpt, apiKey_gemini, apiKey_deepseek } = await chrome.storage.local.get(['apiKey_chatgpt', 'apiKey_gemini', 'apiKey_deepseek']);
+            if (apiKey_chatgpt || apiKey_gemini || apiKey_deepseek) {
+                showMainSection();
+            } else {
+                showApiSetupSection();
+            }
+        }
+    })();
 });
 
 // Content script functions
@@ -294,70 +343,72 @@ async function solveWithAI(assignment, model, apiKey) {
             }
 
         case 'gemini':
-            console.log(`Estimated cost (Gemini): Consult Google AI pricing`);
+            console.log(`Estimated cost (Gemini): $${(estimatedTokens * 0.0015 / 1000).toFixed(6)}`);
             try {
-                const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: prompt
-                            }]
-                        }]
-                    })
-                });
-
-                if (!geminiResponse.ok) {
-                    const errorText = await geminiResponse.text();
-                    console.error('Gemini API Response:', errorText);
-                    throw new Error(`Gemini API request failed: ${geminiResponse.status} ${geminiResponse.statusText}\n${errorText}`);
-                }
-
-                const geminiData = await geminiResponse.json();
-                // Gemini response might have candidate[0].content.parts[0].text
-                return geminiData.candidates[0].content.parts[0].text;
-            } catch (error) {
-                console.error('Gemini API Error:', error);
-                throw error;
-            }
-
-        case 'deepseek':
-            console.log(`Estimated cost (Deepseek): Consult Deepseek pricing`);
-            try {
-                const deepseekResponse = await fetch('https://api.deepseek.com/chat/completions', {
+                const response = await fetch('https://api.gemini.com/v1/completions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: "deepseek-chat", // or "deepseek-coder"
-                        messages: [
-                            { role: "system", content: "You are a programming expert. Provide only the code solution without any explanations or markdown formatting."},
-                            { role: "user", content: prompt }
-                        ],
-                        temperature: 0.7,
+                        model: "gemini-1",
+                        prompt: prompt,
                         max_tokens: 2000
                     })
                 });
 
-                if (!deepseekResponse.ok) {
-                    const errorText = await deepseekResponse.text();
-                    console.error('Deepseek API Response:', errorText);
-                    throw new Error(`Deepseek API request failed: ${deepseekResponse.status} ${deepseekResponse.statusText}\n${errorText}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Response:', errorText);
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}\n${errorText}`);
                 }
 
-                const deepseekData = await deepseekResponse.json();
-                return deepseekData.choices[0].message.content;
+                const data = await response.json();
+                const outputTokens = data.usage.completion_tokens;
+                console.log(`Actual output tokens: ${outputTokens}`);
+                console.log(`Actual total cost (Gemini): $${((estimatedTokens + outputTokens) * 0.0015 / 1000).toFixed(6)}`);
+                
+                return data.choices[0].text;
             } catch (error) {
-                console.error('Deepseek API Error:', error);
+                console.error('Gemini API Error:', error);
+                throw error;
+            }
+
+        case 'deepseek':
+            console.log(`Estimated cost (DeepSeek): $${(estimatedTokens * 0.0015 / 1000).toFixed(6)}`);
+            try {
+                const response = await fetch('https://api.deepseek.com/v1/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-1",
+                        prompt: prompt,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Response:', errorText);
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+
+                const data = await response.json();
+                const outputTokens = data.usage.completion_tokens;
+                console.log(`Actual output tokens: ${outputTokens}`);
+                console.log(`Actual total cost (DeepSeek): $${((estimatedTokens + outputTokens) * 0.0015 / 1000).toFixed(6)}`);
+                
+                return data.choices[0].text;
+            } catch (error) {
+                console.error('DeepSeek API Error:', error);
                 throw error;
             }
 
         default:
             throw new Error('Unknown AI model selected.');
     }
-} 
+}

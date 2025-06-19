@@ -79,4 +79,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.scrollY > 50) {
         header.classList.add('scrolled-header');
     }
+
+    // Activation code display logic for delivery pages
+    function showActivationCode() {
+        const codeDisplay = document.getElementById('activation-code-display');
+        if (codeDisplay) {
+            // Try to get code from URL param first
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                codeDisplay.textContent = code;
+            } else {
+                // Fallback: fetch from backend (if endpoint exists)
+                fetch('/api/activation-code')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.code) {
+                            codeDisplay.textContent = data.code;
+                        } else {
+                            codeDisplay.textContent = 'No code found.';
+                        }
+                    })
+                    .catch(() => {
+                        codeDisplay.textContent = 'Error loading code.';
+                    });
+            }
+        }
+    }
+
+    // Download extension button logic
+    function setupDownloadButton() {
+        const downloadBtn = document.querySelector('.download-button');
+        if (downloadBtn) {
+            downloadBtn.setAttribute('href', '/static/extension.zip');
+            downloadBtn.setAttribute('download', 'CodeHS-Assistant-Extension.zip');
+        }
+    }
+
+    showActivationCode();
+    setupDownloadButton();
 }); 

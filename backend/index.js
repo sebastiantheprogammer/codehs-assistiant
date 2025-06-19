@@ -75,7 +75,8 @@ app.delete('/api/keys/:id', async (req, res) => {
 });
 
 // Generate activation code
-app.post('/api/generate-code', (req, res) => {
+app.post('/api/generate-code', async (req, res) => {
+  await db.read();
   const data = db.data.apiKeys;
   const code = uuidv4();
   const timestamp = Date.now();
@@ -92,7 +93,8 @@ app.post('/api/generate-code', (req, res) => {
 });
 
 // Verify activation code
-app.post('/api/verify-code', (req, res) => {
+app.post('/api/verify-code', async (req, res) => {
+  await db.read();
   const { code } = req.body;
   const data = db.data.apiKeys;
   
@@ -113,15 +115,16 @@ app.post('/api/verify-code', (req, res) => {
 });
 
 // Save API key
-app.post('/api/save-key', (req, res) => {
-  const { provider, key, type } = req.body;
+app.post('/api/save-key', async (req, res) => {
+  await db.read();
+  const { provider, apiKey, type } = req.body;
   const data = db.data.apiKeys;
   
   if (!data.find(entry => entry.provider === provider && entry.type === type)) {
     data.push({
       id: Date.now().toString(),
       provider,
-      apiKey: key,
+      apiKey,
       type
     });
   }
@@ -132,7 +135,8 @@ app.post('/api/save-key', (req, res) => {
 });
 
 // Get API key
-app.get('/api/get-key/:provider/:type', (req, res) => {
+app.get('/api/get-key/:provider/:type', async (req, res) => {
+  await db.read();
   const { provider, type } = req.params;
   const data = db.data.apiKeys;
   
@@ -145,7 +149,8 @@ app.get('/api/get-key/:provider/:type', (req, res) => {
 });
 
 // Get all API keys
-app.get('/api/get-keys', (req, res) => {
+app.get('/api/get-keys', async (req, res) => {
+  await db.read();
   const data = db.data.apiKeys;
   res.json(data);
 });

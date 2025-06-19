@@ -130,12 +130,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Generate activation code
     generateCodeBtn.addEventListener('click', async () => {
+        const durationValue = document.getElementById('durationValue').value;
+        const durationUnit = document.getElementById('durationUnit').value;
         try {
             const response = await fetch('http://localhost:3000/api/generate-code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                body: JSON.stringify({ durationValue, durationUnit })
             });
 
             if (response.ok) {

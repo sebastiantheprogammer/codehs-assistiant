@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         .how-to-use-content {
             text-align: center;
@@ -57,6 +58,43 @@
         .cta-button:hover {
             transform: translateY(-2px);
         }
+        .animated-header {
+            margin: 32px auto 32px auto;
+            padding: 18px 32px;
+            background: rgba(255,255,255,0.10);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 18px;
+            max-width: 900px;
+            cursor: pointer;
+            transition: box-shadow 0.25s, transform 0.25s;
+            animation: fadeInUp 0.7s cubic-bezier(.39,.575,.56,1.000) both;
+        }
+        .animated-header:hover {
+            box-shadow: 0 0 0 4px #fff3, 0 8px 32px 0 rgba(31,38,135,0.20);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .animated-header-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #fff;
+            padding: 4px;
+        }
+        .animated-header-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.5em;
+            letter-spacing: 0.5px;
+        }
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -64,10 +102,12 @@
     
     <header>
         <nav>
-            <div class="logo">
-                <img src="https://uploads.codehs.com/7cf4e0882dfdd89d1d9b526cbaf97263" alt="CodeHS Assistant Logo" style="height: 50px; margin-right: 10px;">
-                <span>CodeHS Assistant</span>
-            </div>
+            <a href="index.html" style="text-decoration:none;">
+                <div class="logo">
+                    <img src="https://uploads.codehs.com/7cf4e0882dfdd89d1d9b526cbaf97263" alt="CodeHS Assistant Logo" style="height: 40px;">
+                    <span>CodeHS Assistant</span>
+                </div>
+            </a>
             <div class="nav-links">
                 <a href="index.html#features">Features</a>
                 <a href="index.html#pricing">Pricing</a>
@@ -110,5 +150,6 @@
             <p>&copy; 2024 CodeHS Assistant. All rights reserved.</p>
         </div>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html> 
