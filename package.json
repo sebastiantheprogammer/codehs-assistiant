@@ -2,10 +2,10 @@
   "name": "codehs-assistant-backend",
   "version": "1.0.0",
   "description": "Backend server for CodeHS Assistant extension",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
