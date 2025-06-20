@@ -85,14 +85,9 @@ nav {
     font-weight: 700;
 }
 
-.logo a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.logo a:hover {
-    color: var(--primary-color);
-    text-decoration: none;
+.logo span, .logo a, .logo a:visited, .logo a:active, .logo a:hover {
+    color: #fff !important;
+    text-decoration: none !important;
 }
 
 .logo img {
