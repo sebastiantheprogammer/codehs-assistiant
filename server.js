@@ -134,6 +134,122 @@ app.post('/api/verify-code', (req, res) => {
   }
 });
 
+// Get activation code by session ID
+app.post('/api/get-activation-code', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID required' });
+    }
+    
+    // Retrieve the session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    // Find the activation code for this session
+    let activationCode = null;
+    for (const [code, data] of activationCodes.entries()) {
+      if (data.sessionId === sessionId) {
+        activationCode = code;
+        break;
+      }
+    }
+    
+    if (!activationCode) {
+      return res.status(404).json({ error: 'Activation code not found' });
+    }
+    
+    res.json({ 
+      code: activationCode,
+      amount: session.amount_total
+    });
+  } catch (error) {
+    console.error('Error getting activation code:', error);
+    res.status(500).json({ error: 'Failed to get activation code' });
+  }
+});
+
+// Stripe webhook endpoint for payment confirmation
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    // Verify webhook signature
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object;
+      console.log('Payment completed for session:', session.id);
+      
+      // Generate activation code based on the product
+      let durationValue = 30;
+      let durationUnit = 'days';
+      
+      // Determine duration based on product ID or amount
+      if (session.amount_total === 10000) { // $100.00 for yearly
+        durationValue = 365;
+        durationUnit = 'days';
+      } else if (session.amount_total === 8000) { // $80.00 for monthly
+        durationValue = 30;
+        durationUnit = 'days';
+      } else if (session.amount_total === 5000) { // $50.00 for weekly
+        durationValue = 7;
+        durationUnit = 'days';
+      } else if (session.amount_total === 1499) { // $14.99 for daily
+        durationValue = 1;
+        durationUnit = 'days';
+      }
+      
+      // Generate activation code
+      const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+      const expiryDate = new Date();
+      
+      switch (durationUnit) {
+        case 'days':
+          expiryDate.setDate(expiryDate.getDate() + durationValue);
+          break;
+        case 'weeks':
+          expiryDate.setDate(expiryDate.getDate() + durationValue * 7);
+          break;
+        case 'months':
+          expiryDate.setMonth(expiryDate.getMonth() + durationValue);
+          break;
+        default:
+          expiryDate.setDate(expiryDate.getDate() + 30);
+      }
+
+      activationCodes.set(code, {
+        code,
+        expiryDate,
+        used: false,
+        customerEmail: session.customer_details?.email || 'unknown',
+        sessionId: session.id
+      });
+
+      // Store the code in session metadata for redirect
+      session.metadata = { activationCode: code };
+      
+      console.log('Generated activation code:', code, 'for customer:', session.customer_details?.email);
+      break;
+      
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  res.json({ received: true });
+});
+
 // Stripe payment endpoint
 app.post('/api/create-payment-intent', async (req, res) => {
   try {
