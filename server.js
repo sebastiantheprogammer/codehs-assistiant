@@ -2,8 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const crypto = require('crypto');
+
+// Clean up the Stripe secret key (remove newlines, spaces, etc.)
+const cleanStripeKey = (key) => {
+  if (!key) return null;
+  return key.replace(/\s+/g, '').trim();
+};
+
+const stripe = require('stripe')(cleanStripeKey(process.env.STRIPE_SECRET_KEY));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +20,11 @@ const activationCodes = new Map();
 
 // Middleware
 app.use(cors());
+
+// Special handling for Stripe webhooks - must be raw body
+app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
+
+// Regular JSON parsing for other routes
 app.use(express.json());
 app.use(express.static('website')); // Serve static files from website directory
 
@@ -183,7 +195,8 @@ app.post('/api/get-activation-code', async (req, res) => {
     }
     
     // Check if Stripe secret key is available
-    if (!process.env.STRIPE_SECRET_KEY) {
+    const stripeKey = cleanStripeKey(process.env.STRIPE_SECRET_KEY);
+    if (!stripeKey) {
       console.error('STRIPE_SECRET_KEY not found in environment');
       return res.status(500).json({ error: 'Stripe configuration missing' });
     }
@@ -234,15 +247,15 @@ app.post('/api/get-activation-code', async (req, res) => {
 });
 
 // Stripe webhook endpoint for payment confirmation
-app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+app.post('/api/stripe-webhook', async (req, res) => {
   console.log('Webhook received');
   
   const sig = req.headers['stripe-signature'];
   let event;
 
   try {
-    // Verify webhook signature
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    // Verify webhook signature with raw body
+    event = stripe.webhooks.constructEvent(req.body, sig, cleanStripeKey(process.env.STRIPE_WEBHOOK_SECRET));
     console.log('Webhook verified, event type:', event.type);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
