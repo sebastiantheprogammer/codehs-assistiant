@@ -139,30 +139,42 @@ app.post('/api/get-activation-code', async (req, res) => {
   try {
     const { sessionId } = req.body;
     
+    console.log('Looking for activation code for session:', sessionId);
+    
     if (!sessionId) {
+      console.log('No session ID provided');
       return res.status(400).json({ error: 'Session ID required' });
     }
     
     // Retrieve the session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log('Stripe session found:', session ? 'Yes' : 'No');
+    console.log('Session amount:', session?.amount_total);
     
     if (!session) {
+      console.log('Session not found in Stripe');
       return res.status(404).json({ error: 'Session not found' });
     }
     
     // Find the activation code for this session
     let activationCode = null;
+    console.log('Current activation codes in memory:', Array.from(activationCodes.keys()));
+    
     for (const [code, data] of activationCodes.entries()) {
+      console.log('Checking code:', code, 'sessionId:', data.sessionId, 'against:', sessionId);
       if (data.sessionId === sessionId) {
         activationCode = code;
+        console.log('Found matching activation code:', code);
         break;
       }
     }
     
     if (!activationCode) {
+      console.log('No activation code found for session:', sessionId);
       return res.status(404).json({ error: 'Activation code not found' });
     }
     
+    console.log('Returning activation code:', activationCode);
     res.json({ 
       code: activationCode,
       amount: session.amount_total
@@ -175,12 +187,15 @@ app.post('/api/get-activation-code', async (req, res) => {
 
 // Stripe webhook endpoint for payment confirmation
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  console.log('Webhook received');
+  
   const sig = req.headers['stripe-signature'];
   let event;
 
   try {
     // Verify webhook signature
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    console.log('Webhook verified, event type:', event.type);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -191,6 +206,8 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
     case 'checkout.session.completed':
       const session = event.data.object;
       console.log('Payment completed for session:', session.id);
+      console.log('Session amount:', session.amount_total);
+      console.log('Customer email:', session.customer_details?.email);
       
       // Generate activation code based on the product
       let durationValue = 30;
@@ -200,15 +217,21 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
       if (session.amount_total === 10000) { // $100.00 for yearly
         durationValue = 365;
         durationUnit = 'days';
+        console.log('Detected yearly pass ($100.00)');
       } else if (session.amount_total === 8000) { // $80.00 for monthly
         durationValue = 30;
         durationUnit = 'days';
+        console.log('Detected monthly pass ($80.00)');
       } else if (session.amount_total === 5000) { // $50.00 for weekly
         durationValue = 7;
         durationUnit = 'days';
+        console.log('Detected weekly pass ($50.00)');
       } else if (session.amount_total === 1499) { // $14.99 for daily
         durationValue = 1;
         durationUnit = 'days';
+        console.log('Detected daily pass ($14.99)');
+      } else {
+        console.log('Unknown amount, using default 30 days:', session.amount_total);
       }
       
       // Generate activation code
@@ -237,10 +260,9 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         sessionId: session.id
       });
 
-      // Store the code in session metadata for redirect
-      session.metadata = { activationCode: code };
-      
       console.log('Generated activation code:', code, 'for customer:', session.customer_details?.email);
+      console.log('Code expires:', expiryDate);
+      console.log('Total codes in memory:', activationCodes.size);
       break;
       
     default:

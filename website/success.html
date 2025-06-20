@@ -83,13 +83,15 @@
                 const sessionId = urlParams.get('session_id');
                 
                 if (!sessionId) {
-                    throw new Error('No session ID found');
+                    statusMessage.textContent = 'Error: No session ID found in URL. Please contact support.';
+                    return;
                 }
                 
                 statusMessage.textContent = 'Retrieving your activation code...';
+                console.log('Session ID:', sessionId);
                 
                 // Wait a moment for webhook to process
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, 3000));
                 
                 // Try to get activation code from server
                 const response = await fetch('/api/get-activation-code', {
@@ -100,8 +102,12 @@
                     body: JSON.stringify({ sessionId })
                 });
                 
+                console.log('Response status:', response.status);
+                
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Response data:', data);
+                    
                     if (data.code) {
                         statusMessage.textContent = 'Redirecting to delivery page...';
                         
@@ -119,21 +125,47 @@
                             deliveryPage = 'day-pass-delivery.html';
                         }
                         
-                        // Redirect with activation code
-                        window.location.href = `${deliveryPage}?code=${data.code}`;
+                        console.log('Redirecting to:', deliveryPage);
+                        
+                        // Try automatic redirect first
+                        setTimeout(() => {
+                            window.location.href = `${deliveryPage}?code=${data.code}`;
+                        }, 1000);
+                        
+                        // Fallback: show manual link if redirect fails
+                        setTimeout(() => {
+                            if (window.location.pathname.includes('success.html')) {
+                                statusMessage.innerHTML = `
+                                    <div style="margin: 2rem 0;">
+                                        <p>If you're not redirected automatically, click here:</p>
+                                        <a href="${deliveryPage}?code=${data.code}" class="cta-button" style="margin-top: 1rem;">
+                                            Go to Delivery Page
+                                        </a>
+                                    </div>
+                                `;
+                            }
+                        }, 5000);
+                        
                         return;
+                    } else {
+                        statusMessage.textContent = 'Error: No activation code found in response. Please contact support.';
+                        console.error('No code in response:', data);
                     }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    statusMessage.textContent = `Server error (${response.status}): ${errorText}`;
                 }
                 
                 // Fallback: redirect to home page
-                statusMessage.textContent = 'Redirecting to home page...';
+                statusMessage.textContent = 'Something went wrong. Redirecting to home page...';
                 setTimeout(() => {
                     window.location.href = 'index.html';
-                }, 2000);
+                }, 3000);
                 
             } catch (error) {
                 console.error('Error:', error);
-                statusMessage.textContent = 'Something went wrong. Redirecting to home page...';
+                statusMessage.textContent = `Error: ${error.message}. Redirecting to home page...`;
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 3000);
