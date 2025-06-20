@@ -186,27 +186,28 @@ app.post('/api/test-generate-code', (req, res) => {
 app.post('/api/get-activation-code', async (req, res) => {
   try {
     const { sessionId } = req.body;
-    
+    let session; // Declare session here to make it available in the whole function
+
     console.log('Looking for activation code for session:', sessionId);
-    
+
     if (!sessionId) {
       console.log('No session ID provided');
       return res.status(400).json({ error: 'Session ID required' });
     }
-    
+
     // Check if Stripe secret key is available
     const stripeKey = cleanStripeKey(process.env.STRIPE_SECRET_KEY);
     if (!stripeKey) {
       console.error('STRIPE_SECRET_KEY not found in environment');
       return res.status(500).json({ error: 'Stripe configuration missing' });
     }
-    
+
     // Retrieve the session from Stripe
     try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      session = await stripe.checkout.sessions.retrieve(sessionId);
       console.log('Stripe session found:', session ? 'Yes' : 'No');
       console.log('Session amount:', session?.amount_total);
-      
+
       if (!session) {
         console.log('Session not found in Stripe');
         return res.status(404).json({ error: 'Session not found' });
@@ -215,11 +216,11 @@ app.post('/api/get-activation-code', async (req, res) => {
       console.error('Stripe API error:', stripeError.message);
       return res.status(500).json({ error: `Stripe error: ${stripeError.message}` });
     }
-    
+
     // Find the activation code for this session
     let activationCode = null;
     console.log('Current activation codes in memory:', Array.from(activationCodes.keys()));
-    
+
     for (const [code, data] of activationCodes.entries()) {
       console.log('Checking code:', code, 'sessionId:', data.sessionId, 'against:', sessionId);
       if (data.sessionId === sessionId) {
@@ -228,14 +229,14 @@ app.post('/api/get-activation-code', async (req, res) => {
         break;
       }
     }
-    
+
     if (!activationCode) {
       console.log('No activation code found for session:', sessionId);
       return res.status(404).json({ error: 'Activation code not found' });
     }
-    
+
     console.log('Returning activation code:', activationCode);
-    res.json({ 
+    res.json({
       code: activationCode,
       amount: session.amount_total
     });
