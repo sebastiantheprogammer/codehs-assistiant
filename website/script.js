@@ -1,4 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Security check for delivery pages
+    function checkDeliveryPageAccess() {
+        const deliveryPages = [
+            'monthly-pass-delivery.html',
+            'yearly-pass-delivery.html', 
+            'week-pass-delivery.html',
+            'day-pass-delivery.html'
+        ];
+        
+        const currentPage = window.location.pathname.split('/').pop();
+        if (deliveryPages.includes(currentPage)) {
+            // Check if user came from a valid source or has proper authorization
+            const referrer = document.referrer;
+            const hasCode = new URLSearchParams(window.location.search).get('code');
+            const hasValidReferrer = referrer && (
+                referrer.includes('codehs-assistiant.onrender.com') || 
+                referrer.includes('localhost') ||
+                referrer.includes('127.0.0.1')
+            );
+            
+            if (!hasCode && !hasValidReferrer) {
+                // Redirect to home page if accessed directly without authorization
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Run security check first
+    if (!checkDeliveryPageAccess()) {
+        return;
+    }
+
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -89,19 +123,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = urlParams.get('code');
             if (code) {
                 codeDisplay.textContent = code;
+                codeDisplay.style.color = '#00ff88';
             } else {
+                // Check if this is a direct access without authorization
+                const referrer = document.referrer;
+                const hasValidReferrer = referrer && (
+                    referrer.includes('codehs-assistiant.onrender.com') || 
+                    referrer.includes('localhost') ||
+                    referrer.includes('127.0.0.1')
+                );
+                
+                if (!hasValidReferrer) {
+                    codeDisplay.textContent = 'Access denied. Please complete your purchase first.';
+                    codeDisplay.style.color = '#ff6b6b';
+                    return;
+                }
+                
                 // Fallback: fetch from backend (if endpoint exists)
                 fetch('/api/activation-code')
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('No activation code available');
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.code) {
                             codeDisplay.textContent = data.code;
+                            codeDisplay.style.color = '#00ff88';
                         } else {
-                            codeDisplay.textContent = 'No code found.';
+                            codeDisplay.textContent = 'No activation code found. Please contact support.';
+                            codeDisplay.style.color = '#ff6b6b';
                         }
                     })
-                    .catch(() => {
-                        codeDisplay.textContent = 'Error loading code.';
+                    .catch((error) => {
+                        console.error('Activation code error:', error);
+                        codeDisplay.textContent = 'Unable to load activation code. Please contact support.';
+                        codeDisplay.style.color = '#ff6b6b';
                     });
             }
         }

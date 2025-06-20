@@ -85,6 +85,16 @@ nav {
     font-weight: 700;
 }
 
+.logo a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.logo a:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
 .logo img {
     height: 50px;
     margin-right: 10px;
