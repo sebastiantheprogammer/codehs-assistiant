@@ -169,8 +169,44 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupDownloadButton() {
         const downloadBtn = document.querySelector('.download-button');
         if (downloadBtn) {
-            downloadBtn.setAttribute('href', '/static/extension.zip');
-            downloadBtn.setAttribute('download', 'CodeHS-Assistant-Extension.zip');
+            // Check if user has a valid activation code
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            
+            if (code) {
+                // User has a code, show download button
+                downloadBtn.style.display = 'inline-block';
+                downloadBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    try {
+                        const response = await fetch('/api/download-extension');
+                        if (response.ok) {
+                            // Create a blob from the response
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            
+                            // Create a temporary link and trigger download
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'CodeHS-Assistant-Extension.zip';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                        } else {
+                            const errorData = await response.json();
+                            alert('Download failed: ' + (errorData.message || 'Please contact support'));
+                        }
+                    } catch (error) {
+                        console.error('Download error:', error);
+                        alert('Download failed. Please contact support.');
+                    }
+                });
+            } else {
+                // No code, hide download button
+                downloadBtn.style.display = 'none';
+            }
         }
     }
 

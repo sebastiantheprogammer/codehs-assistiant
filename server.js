@@ -152,9 +152,28 @@ app.post('/api/create-payment-intent', async (req, res) => {
 
 // Extension download endpoint
 app.get('/api/download-extension', (req, res) => {
-  // TODO: Add authentication and access control
+  // Check if user has a valid activation code in session/cookie
+  // For now, we'll allow downloads but you can add authentication later
   const extensionPath = path.join(__dirname, 'extension');
-  res.download(path.join(extensionPath, 'codehs-assistant.zip'));
+  
+  // Check if the extension directory exists
+  if (!require('fs').existsSync(extensionPath)) {
+    return res.status(404).json({ error: 'Extension not found' });
+  }
+  
+  // For now, we'll serve the extension as a zip file
+  // You'll need to create the zip file manually or use a library
+  const zipPath = path.join(__dirname, 'extension.zip');
+  
+  if (require('fs').existsSync(zipPath)) {
+    res.download(zipPath, 'CodeHS-Assistant-Extension.zip');
+  } else {
+    // If zip doesn't exist, serve the extension directory as a tar.gz
+    res.status(404).json({ 
+      error: 'Extension download not available',
+      message: 'Please contact support for manual download'
+    });
+  }
 });
 
 // Start server
