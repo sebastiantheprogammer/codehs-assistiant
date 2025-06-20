@@ -134,6 +134,42 @@ app.post('/api/verify-code', (req, res) => {
   }
 });
 
+// Test endpoint to manually generate activation code (for debugging)
+app.post('/api/test-generate-code', (req, res) => {
+  try {
+    const { sessionId, amount = 10000 } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID required' });
+    }
+    
+    // Generate activation code
+    const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 365); // 1 year
+    
+    activationCodes.set(code, {
+      code,
+      expiryDate,
+      used: false,
+      customerEmail: 'test@example.com',
+      sessionId: sessionId
+    });
+    
+    console.log('Manually generated test code:', code, 'for session:', sessionId);
+    
+    res.json({ 
+      code,
+      sessionId,
+      amount,
+      message: 'Test activation code generated successfully'
+    });
+  } catch (error) {
+    console.error('Error generating test code:', error);
+    res.status(500).json({ error: 'Failed to generate test code' });
+  }
+});
+
 // Get activation code by session ID
 app.post('/api/get-activation-code', async (req, res) => {
   try {
@@ -146,14 +182,25 @@ app.post('/api/get-activation-code', async (req, res) => {
       return res.status(400).json({ error: 'Session ID required' });
     }
     
-    // Retrieve the session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    console.log('Stripe session found:', session ? 'Yes' : 'No');
-    console.log('Session amount:', session?.amount_total);
+    // Check if Stripe secret key is available
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('STRIPE_SECRET_KEY not found in environment');
+      return res.status(500).json({ error: 'Stripe configuration missing' });
+    }
     
-    if (!session) {
-      console.log('Session not found in Stripe');
-      return res.status(404).json({ error: 'Session not found' });
+    // Retrieve the session from Stripe
+    try {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      console.log('Stripe session found:', session ? 'Yes' : 'No');
+      console.log('Session amount:', session?.amount_total);
+      
+      if (!session) {
+        console.log('Session not found in Stripe');
+        return res.status(404).json({ error: 'Session not found' });
+      }
+    } catch (stripeError) {
+      console.error('Stripe API error:', stripeError.message);
+      return res.status(500).json({ error: `Stripe error: ${stripeError.message}` });
     }
     
     // Find the activation code for this session
@@ -181,7 +228,8 @@ app.post('/api/get-activation-code', async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting activation code:', error);
-    res.status(500).json({ error: 'Failed to get activation code' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: `Failed to get activation code: ${error.message}` });
   }
 });
 
